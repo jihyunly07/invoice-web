@@ -1,0 +1,49 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash",
+      "Mcp_playwright",
+      "mcp__playwright__browser_wait_for",
+      "mcp__playwright__browser_take_screenshot"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "playwright"
+  ],
+  "hooks": {
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/notification-notify.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/task-complete-notify.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo \"테스트 훅!\" >> ./hook-test.txt"
+          }
+        ]
+      }
+    ]
+  }
+}

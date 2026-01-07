@@ -1,0 +1,19 @@
+/**
+ * 컨텐츠 컨테이너
+ * 최대 너비를 제한하고 중앙 정렬
+ */
+
+import { cn } from '@/lib/utils';
+
+interface ContainerProps {
+  children: React.ReactNode;
+  className?: string;
+}
+
+export function Container({ children, className }: ContainerProps) {
+  return (
+    <div className={cn('mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8', className)}>
+      {children}
+    </div>
+  );
+}

@@ -1,0 +1,384 @@
+#!/bin/bash
+
+# API 레이어 생성 커맨드 (Service + Repository + DTO + Types)
+# 사용법: create-api-layer <name>
+# 예: create-api-layer user
+
+set -e
+
+# 색상 정의
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# 인자 확인
+if [ -z "$1" ]; then
+  echo -e "${RED}오류: API 이름을 입력해주세요.${NC}"
+  echo "사용법: create-api-layer <name>"
+  echo "예: create-api-layer user"
+  exit 1
+fi
+
+NAME=$1
+
+# 입력 검증 (보안: 경로 인젝션 방지)
+if [[ ! "$NAME" =~ ^[a-zA-Z0-9_-]+$ ]]; then
+  echo -e "${RED}오류: 이름에는 영문자, 숫자, 하이픈, 언더스코어만 사용 가능합니다.${NC}"
+  exit 1
+fi
+
+# 경로 트래버설 방지
+if [[ "$NAME" == *".."* ]] || [[ "$NAME" == "/"* ]]; then
+  echo -e "${RED}오류: 유효하지 않은 이름입니다.${NC}"
+  exit 1
+fi
+
+# kebab-case로 변환
+KEBAB_NAME=$(echo "$NAME" | sed 's/\([A-Z]\)/-\1/g' | sed 's/^-//' | tr '[:upper:]' '[:lower:]')
+# PascalCase로 변환 (kebab-case에서)
+PASCAL_NAME=$(echo "$KEBAB_NAME" | perl -pe 's/(^|-)(.)/\U$2/g')
+# camelCase로 변환 (kebab-case에서)
+CAMEL_NAME=$(echo "$KEBAB_NAME" | perl -pe 's/-(.)/\U$1/g')
+
+# 파일 경로
+SERVICE_PATH="src/services/${KEBAB_NAME}.service.ts"
+REPOSITORY_PATH="src/repositories/${KEBAB_NAME}.repository.ts"
+DTO_PATH="src/dto/${KEBAB_NAME}.dto.ts"
+TYPE_PATH="src/types/${KEBAB_NAME}.ts"
+
+# 디렉토리 생성
+mkdir -p src/services
+mkdir -p src/repositories
+mkdir -p src/dto
+
+if [ ! -d "src/types" ]; then
+  mkdir -p src/types
+fi
+
+# 파일 중복 확인 함수
+check_file_exists() {
+  if [ -f "$1" ]; then
+    echo -e "${YELLOW}경고: $1 파일이 이미 존재합니다.${NC}"
+    read -p "덮어쓰시겠습니까? (y/N): " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+      echo "취소되었습니다."
+      exit 0
+    fi
+  fi
+}
+
+# 모든 파일 확인
+check_file_exists "$SERVICE_PATH"
+check_file_exists "$REPOSITORY_PATH"
+check_file_exists "$DTO_PATH"
+check_file_exists "$TYPE_PATH"
+
+# Types 파일 생성
+echo -e "${BLUE}📝 Types 파일 생성 중...${NC}"
+cat > "$TYPE_PATH" << EOF
+/**
+ * ${PASCAL_NAME} 타입 정의
+ */
+
+/**
+ * ${PASCAL_NAME} 엔티티
+ */
+export interface ${PASCAL_NAME} {
+  id: string;
+  name: string;
+  description?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/**
+ * ${PASCAL_NAME} 목록 필터
+ */
+export interface ${PASCAL_NAME}Filter {
+  search?: string;
+  page?: number;
+  limit?: number;
+}
+
+/**
+ * ${PASCAL_NAME} 정렬 옵션
+ */
+export type ${PASCAL_NAME}SortBy = 'name' | 'createdAt' | 'updatedAt';
+
+/**
+ * 정렬 방향
+ */
+export type SortOrder = 'asc' | 'desc';
+EOF
+
+echo -e "${GREEN}✓ ${TYPE_PATH} 생성 완료${NC}"
+
+# DTO 파일 생성
+echo -e "${BLUE}📝 DTO 파일 생성 중...${NC}"
+cat > "$DTO_PATH" << EOF
+/**
+ * ${PASCAL_NAME} Data Transfer Objects
+ */
+
+import type { ${PASCAL_NAME} } from '@/types/${KEBAB_NAME}';
+
+/**
+ * ${PASCAL_NAME} 생성 DTO
+ */
+export interface Create${PASCAL_NAME}DTO {
+  name: string;
+  description?: string;
+}
+
+/**
+ * ${PASCAL_NAME} 수정 DTO
+ */
+export interface Update${PASCAL_NAME}DTO {
+  name?: string;
+  description?: string;
+}
+
+/**
+ * ${PASCAL_NAME} 응답 DTO
+ */
+export interface ${PASCAL_NAME}ResponseDTO {
+  id: string;
+  name: string;
+  description?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * ${PASCAL_NAME} 목록 응답 DTO
+ */
+export interface ${PASCAL_NAME}ListResponseDTO {
+  items: ${PASCAL_NAME}ResponseDTO[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+/**
+ * Entity를 ResponseDTO로 변환
+ */
+export function to${PASCAL_NAME}ResponseDTO(entity: ${PASCAL_NAME}): ${PASCAL_NAME}ResponseDTO {
+  return {
+    id: entity.id,
+    name: entity.name,
+    description: entity.description,
+    createdAt: entity.createdAt.toISOString(),
+    updatedAt: entity.updatedAt.toISOString(),
+  };
+}
+EOF
+
+echo -e "${GREEN}✓ ${DTO_PATH} 생성 완료${NC}"
+
+# Repository 파일 생성
+echo -e "${BLUE}📝 Repository 파일 생성 중...${NC}"
+cat > "$REPOSITORY_PATH" << EOF
+/**
+ * ${PASCAL_NAME} Repository
+ * 데이터 접근 레이어
+ */
+
+import type { ${PASCAL_NAME}, ${PASCAL_NAME}Filter } from '@/types/${KEBAB_NAME}';
+
+/**
+ * ${PASCAL_NAME} Repository 클래스
+ */
+export class ${PASCAL_NAME}Repository {
+  /**
+   * ID로 ${PASCAL_NAME} 조회
+   */
+  async findById(id: string): Promise<${PASCAL_NAME} | null> {
+    // TODO: 실제 데이터베이스 조회 로직 구현
+    throw new Error('Not implemented');
+  }
+
+  /**
+   * 모든 ${PASCAL_NAME} 조회
+   */
+  async findAll(filter?: ${PASCAL_NAME}Filter): Promise<${PASCAL_NAME}[]> {
+    // TODO: 실제 데이터베이스 조회 로직 구현
+    throw new Error('Not implemented');
+  }
+
+  /**
+   * ${PASCAL_NAME} 생성
+   */
+  async create(data: Omit<${PASCAL_NAME}, 'id' | 'createdAt' | 'updatedAt'>): Promise<${PASCAL_NAME}> {
+    // TODO: 실제 데이터베이스 생성 로직 구현
+    throw new Error('Not implemented');
+  }
+
+  /**
+   * ${PASCAL_NAME} 수정
+   */
+  async update(id: string, data: Partial<${PASCAL_NAME}>): Promise<${PASCAL_NAME}> {
+    // TODO: 실제 데이터베이스 수정 로직 구현
+    throw new Error('Not implemented');
+  }
+
+  /**
+   * ${PASCAL_NAME} 삭제
+   */
+  async delete(id: string): Promise<void> {
+    // TODO: 실제 데이터베이스 삭제 로직 구현
+    throw new Error('Not implemented');
+  }
+
+  /**
+   * ${PASCAL_NAME} 개수 조회
+   */
+  async count(filter?: ${PASCAL_NAME}Filter): Promise<number> {
+    // TODO: 실제 데이터베이스 개수 조회 로직 구현
+    throw new Error('Not implemented');
+  }
+}
+
+// 싱글톤 인스턴스
+export const ${CAMEL_NAME}Repository = new ${PASCAL_NAME}Repository();
+EOF
+
+echo -e "${GREEN}✓ ${REPOSITORY_PATH} 생성 완료${NC}"
+
+# Service 파일 생성
+echo -e "${BLUE}📝 Service 파일 생성 중...${NC}"
+cat > "$SERVICE_PATH" << EOF
+/**
+ * ${PASCAL_NAME} Service
+ * 비즈니스 로직 레이어
+ */
+
+import { ${CAMEL_NAME}Repository } from '@/repositories/${KEBAB_NAME}.repository';
+import type {
+  Create${PASCAL_NAME}DTO,
+  Update${PASCAL_NAME}DTO,
+  ${PASCAL_NAME}ResponseDTO,
+  ${PASCAL_NAME}ListResponseDTO,
+} from '@/dto/${KEBAB_NAME}.dto';
+import { to${PASCAL_NAME}ResponseDTO } from '@/dto/${KEBAB_NAME}.dto';
+import type { ${PASCAL_NAME}Filter } from '@/types/${KEBAB_NAME}';
+
+/**
+ * ${PASCAL_NAME} Service 클래스
+ */
+export class ${PASCAL_NAME}Service {
+  /**
+   * ID로 ${PASCAL_NAME} 조회
+   */
+  async get${PASCAL_NAME}ById(id: string): Promise<${PASCAL_NAME}ResponseDTO> {
+    const ${NAME} = await ${CAMEL_NAME}Repository.findById(id);
+
+    if (!${NAME}) {
+      throw new Error('${PASCAL_NAME}을(를) 찾을 수 없습니다.');
+    }
+
+    return to${PASCAL_NAME}ResponseDTO(${NAME});
+  }
+
+  /**
+   * ${PASCAL_NAME} 목록 조회
+   */
+  async get${PASCAL_NAME}List(
+    filter?: ${PASCAL_NAME}Filter
+  ): Promise<${PASCAL_NAME}ListResponseDTO> {
+    const page = filter?.page || 1;
+    const limit = filter?.limit || 10;
+
+    const [items, total] = await Promise.all([
+      ${CAMEL_NAME}Repository.findAll(filter),
+      ${CAMEL_NAME}Repository.count(filter),
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      items: items.map(to${PASCAL_NAME}ResponseDTO),
+      total,
+      page,
+      limit,
+      totalPages,
+    };
+  }
+
+  /**
+   * ${PASCAL_NAME} 생성
+   */
+  async create${PASCAL_NAME}(data: Create${PASCAL_NAME}DTO): Promise<${PASCAL_NAME}ResponseDTO> {
+    // 비즈니스 로직 검증
+    if (!data.name || data.name.trim() === '') {
+      throw new Error('이름은 필수입니다.');
+    }
+
+    const ${NAME} = await ${CAMEL_NAME}Repository.create(data);
+    return to${PASCAL_NAME}ResponseDTO(${NAME});
+  }
+
+  /**
+   * ${PASCAL_NAME} 수정
+   */
+  async update${PASCAL_NAME}(
+    id: string,
+    data: Update${PASCAL_NAME}DTO
+  ): Promise<${PASCAL_NAME}ResponseDTO> {
+    // 존재 여부 확인
+    const existing = await ${CAMEL_NAME}Repository.findById(id);
+    if (!existing) {
+      throw new Error('${PASCAL_NAME}을(를) 찾을 수 없습니다.');
+    }
+
+    // 비즈니스 로직 검증
+    if (data.name !== undefined && data.name.trim() === '') {
+      throw new Error('이름은 비어있을 수 없습니다.');
+    }
+
+    const updated = await ${CAMEL_NAME}Repository.update(id, data);
+    return to${PASCAL_NAME}ResponseDTO(updated);
+  }
+
+  /**
+   * ${PASCAL_NAME} 삭제
+   */
+  async delete${PASCAL_NAME}(id: string): Promise<void> {
+    // 존재 여부 확인
+    const existing = await ${CAMEL_NAME}Repository.findById(id);
+    if (!existing) {
+      throw new Error('${PASCAL_NAME}을(를) 찾을 수 없습니다.');
+    }
+
+    await ${CAMEL_NAME}Repository.delete(id);
+  }
+}
+
+// 싱글톤 인스턴스
+export const ${CAMEL_NAME}Service = new ${PASCAL_NAME}Service();
+EOF
+
+echo -e "${GREEN}✓ ${SERVICE_PATH} 생성 완료${NC}"
+
+# 완료 메시지
+echo ""
+echo -e "${GREEN}🎉 API 레이어 생성이 완료되었습니다!${NC}"
+echo ""
+echo "생성된 파일:"
+echo "  • $TYPE_PATH"
+echo "  • $DTO_PATH"
+echo "  • $REPOSITORY_PATH"
+echo "  • $SERVICE_PATH"
+echo ""
+echo "아키텍처:"
+echo "  Controller (API Routes) → Service → Repository → Database"
+echo ""
+echo "다음 단계:"
+echo "  1. ${TYPE_PATH}에서 타입을 수정하세요"
+echo "  2. ${DTO_PATH}에서 DTO를 수정하세요"
+echo "  3. ${REPOSITORY_PATH}에서 데이터 접근 로직을 구현하세요"
+echo "  4. ${SERVICE_PATH}에서 비즈니스 로직을 구현하세요"
+echo "  5. API 라우트에서 ${NAME}Service를 사용하세요"
