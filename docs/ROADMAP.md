@@ -403,6 +403,74 @@
 - **산출물**: 테스트 체크리스트 및 버그 리포트
 - **완료 기준**: 모든 테스트 케이스 통과, 크리티컬 버그 0개
 
+#### 마일스톤 4.1.1: Playwright MCP 기반 API 통합테스트 `예상: M`
+
+> Playwright MCP 서버를 활용하여 실제 브라우저 환경에서 API 엔드포인트 호출과 페이지 렌더링을 E2E로 검증합니다.
+
+##### 테스트 환경 설정
+
+- [ ] Playwright MCP 서버 연결 확인 (`.mcp.json`)
+- [ ] 로컬 개발 서버 실행 (`npm run dev`)
+- [ ] 테스트용 Notion 데이터베이스 및 샘플 데이터 준비 (5건 이상)
+
+##### 홈 페이지 API 통합테스트 (`/`)
+
+| 테스트 항목 | MCP 도구 | 검증 내용 |
+|------------|----------|----------|
+| 페이지 접속 | `browser_navigate` | 홈 페이지 정상 로드 |
+| 목록 렌더링 | `browser_snapshot` | 도서 카드 목록 표시 확인 |
+| API 호출 검증 | `browser_network_requests` | Notion API 응답 200, 필수 필드 포함 |
+| 데이터 일치 | `browser_evaluate` | 카드 수 = API 응답 수 |
+
+##### 필터링 통합테스트 (`/?status=...`)
+
+| 테스트 항목 | MCP 도구 | 검증 내용 |
+|------------|----------|----------|
+| 필터 탭 클릭 | `browser_click` | 읽고 싶음 / 읽는 중 / 완독 전환 |
+| 필터 요청 확인 | `browser_network_requests` | 필터 파라미터 포함 여부 |
+| 필터 결과 확인 | `browser_snapshot` | 선택한 상태의 도서만 표시 |
+
+##### 상세 페이지 통합테스트 (`/books/[id]`)
+
+| 테스트 항목 | MCP 도구 | 검증 내용 |
+|------------|----------|----------|
+| 카드 클릭 이동 | `browser_click` | 상세 페이지로 라우팅 |
+| 개별 API 호출 | `browser_network_requests` | 올바른 ID로 요청, 전체 속성 응답 |
+| 상세 렌더링 | `browser_snapshot` | 제목, 저자, 평점, 한줄평, 태그 표시 |
+| 뒤로가기 | `browser_navigate_back` | 목록 페이지 복귀 |
+
+##### 에러 시나리오 테스트
+
+| 테스트 항목 | MCP 도구 | 검증 내용 |
+|------------|----------|----------|
+| 잘못된 ID 접속 | `browser_navigate` → `/books/invalid-id` | 404 에러 UI 표시 |
+| 에러 응답 확인 | `browser_network_requests` | 실패 상태 코드 확인 |
+| 에러 UI 확인 | `browser_snapshot` | 에러 메시지 및 재시도 버튼 |
+
+##### 반응형 렌더링 테스트
+
+- [ ] `browser_resize` → **375px** (모바일): 1열 그리드
+- [ ] `browser_resize` → **768px** (태블릿): 2열 그리드
+- [ ] `browser_resize` → **1280px** (데스크톱): 3열 그리드
+- [ ] 각 뷰포트에서 `browser_snapshot`으로 레이아웃 및 데이터 렌더링 확인
+
+##### 성능 및 안정성 테스트
+
+- [ ] `browser_network_requests`로 API 응답 시간 측정 (2초 이내)
+- [ ] `browser_console_messages`로 콘솔 에러/경고 0건 확인
+- [ ] `browser_evaluate`로 Hydration 에러 없음 검증
+- [ ] `browser_click`으로 다크모드 토글 후 데이터 손실 없음 확인
+
+##### 테스트 결과 문서화
+
+- [ ] `browser_take_screenshot`으로 주요 시나리오별 스크린샷 보관
+- [ ] 테스트 케이스별 통과/실패 기록 정리
+- [ ] 실패 시 `browser_console_messages`로 에러 로그 수집
+
+- **산출물**: Playwright MCP 통합테스트 결과 리포트 및 스크린샷
+- **완료 기준**: 전체 API 엔드포인트 통합테스트 통과율 100%, 콘솔 에러 0건
+- **리스크**: Notion API Rate Limit → 테스트 간 딜레이 추가 및 캐시 응답 활용
+
 #### 마일스톤 4.2: 문서화 및 README 작성 `예상: S`
 - [ ] README.md 업데이트
   - 프로젝트 소개
@@ -497,7 +565,8 @@ graph TD
     M3.3 --> M3.4
 
     M3.4 --> M4.1[4.1: 종합 테스트]
-    M4.1 --> M4.2[4.2: 문서화]
+    M4.1 --> M4.1.1[4.1.1: Playwright MCP 통합테스트]
+    M4.1.1 --> M4.2[4.2: 문서화]
     M4.2 --> M4.3[4.3: 배포]
     M4.3 --> M4.4[4.4: 출시]
 ```
