@@ -1,19 +1,29 @@
 /**
  * 도서 상세 페이지
  * Server Component - 동적 라우트 /books/[id]
+ * ISR: 60초마다 재검증
  */
+
+export const revalidate = 60;
 
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { BookDetail } from '@/components/books/book-detail';
-import { Book } from '@/types/book';
+import { getAllBooks, getBookById } from '@/repositories/book.repository';
+import { BookNotFoundError } from '@/lib/errors';
 
 /**
- * 도서 단건 조회 (Phase 0 완료 후 실제 Repository 연동)
- * TODO: import { getBookById } from '@/repositories/book-repository'
+ * 빌드 시 정적 경로 생성 (ISG)
+ * 모든 도서 ID를 미리 생성하여 첫 방문 시 빠른 응답 제공
  */
-async function getBookById(_id: string): Promise<Book | null> {
-  return null;
+export async function generateStaticParams() {
+  try {
+    const books = await getAllBooks();
+    return books.map((book) => ({ id: book.id }));
+  } catch {
+    // 빌드 시 Notion API 실패해도 빌드는 성공하도록 빈 배열 반환
+    return [];
+  }
 }
 
 interface BookPageProps {
@@ -23,26 +33,28 @@ interface BookPageProps {
 export async function generateMetadata({ params }: BookPageProps): Promise<Metadata> {
   /* Next.js 15: params는 Promise */
   const { id } = await params;
-  const book = await getBookById(id);
 
-  if (!book) {
+  try {
+    const book = await getBookById(id);
+    return {
+      title: book.title,
+      description: book.review ?? `${book.author}의 도서`,
+    };
+  } catch {
     return { title: '도서를 찾을 수 없습니다' };
   }
-
-  return {
-    title: book.title,
-    description: book.review ?? `${book.author}의 도서`,
-  };
 }
 
 export default async function BookPage({ params }: BookPageProps) {
   const { id } = await params;
-  const book = await getBookById(id);
 
-  /* 도서가 없으면 404 */
-  if (!book) {
-    notFound();
+  try {
+    const book = await getBookById(id);
+    return <BookDetail book={book} />;
+  } catch (error) {
+    if (error instanceof BookNotFoundError) {
+      notFound();
+    }
+    throw error;
   }
-
-  return <BookDetail book={book} />;
 }

@@ -9,7 +9,7 @@ import type { Book, ReadingStatus } from '@/types/book';
 import type { NotionPage } from '@/types/notion';
 import { getNotionClient, DATABASE_ID } from '@/lib/notion';
 import { transformNotionPageToBook } from '@/lib/notion/transformers';
-import { NotionAPIError, BookNotFoundError } from '@/lib/errors';
+import { NotionAPIError, BookNotFoundError, RateLimitError, NetworkError } from '@/lib/errors';
 
 /** 재시도 최대 횟수 */
 const MAX_RETRIES = 3;
@@ -36,6 +36,12 @@ async function withRetry<T>(fn: () => Promise<T>, retries = MAX_RETRIES): Promis
       error instanceof Error && error.message.toLowerCase().includes('network');
 
     if (isRateLimit || isNetworkError) {
+      /* 마지막 재시도도 실패 시 도메인 에러로 변환 */
+      if (retries <= 1) {
+        if (isRateLimit) throw new RateLimitError();
+        if (isNetworkError) throw new NetworkError();
+      }
+
       const attempt = MAX_RETRIES - retries + 1;
       const delayMs = RETRY_BASE_DELAY_MS * Math.pow(2, attempt - 1);
       await new Promise((resolve) => setTimeout(resolve, delayMs));
@@ -101,10 +107,18 @@ async function _getAllBooks(): Promise<Book[]> {
   }
 }
 
+/** UUID v4 형식 정규식 */
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 /**
  * 특정 도서 조회 (ID 기반)
  */
 async function _getBookById(pageId: string): Promise<Book> {
+  /* UUID 형식이 아니면 즉시 404 처리 (Notion API 호출 불필요) */
+  if (!UUID_REGEX.test(pageId)) {
+    throw new BookNotFoundError(pageId);
+  }
+
   try {
     const notion = getNotionClient();
     const page = await withRetry(() => notion.pages.retrieve({ page_id: pageId }));
@@ -178,15 +192,18 @@ export const getAllBooks = unstable_cache(_getAllBooks, ['books-all'], {
 
 /**
  * 특정 도서 조회 (캐시 적용, 60초 revalidate)
+ * pageId별 개별 캐시 태그로 세밀한 revalidation 지원
  */
-export const getBookById = unstable_cache(
-  (pageId: string) => _getBookById(pageId),
-  ['book-by-id'],
-  {
-    revalidate: CACHE_REVALIDATE_SECONDS,
-    tags: ['books'],
-  },
-);
+export function getBookById(pageId: string) {
+  return unstable_cache(
+    () => _getBookById(pageId),
+    [`book-${pageId}`],
+    {
+      revalidate: CACHE_REVALIDATE_SECONDS,
+      tags: ['books', `book-${pageId}`],
+    },
+  )();
+}
 
 /**
  * 상태별 도서 목록 조회 (캐시 적용, 60초 revalidate)

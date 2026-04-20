@@ -1,7 +1,10 @@
 /**
  * 홈 페이지 (독서 목록)
  * Server Component - searchParams로 독서 상태 필터 처리
+ * ISR: 60초마다 재검증
  */
+
+export const revalidate = 60;
 
 import { Suspense } from 'react';
 import { Container } from '@/components/layout/container';
@@ -9,8 +12,9 @@ import { PageHeader } from '@/components/layout/page-header';
 import { BookFilterTabs } from '@/components/books/book-filter-tabs';
 import { BookList } from '@/components/books/book-list';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Book, ReadingStatus } from '@/types/book';
+import { ReadingStatus } from '@/types/book';
 import { READING_STATUS } from '@/lib/constants';
+import { getAllBooks, getBooksByStatus } from '@/repositories/book.repository';
 
 /** 유효한 ReadingStatus 값 집합 */
 const VALID_STATUSES = new Set<string>([
@@ -18,22 +22,6 @@ const VALID_STATUSES = new Set<string>([
   READING_STATUS.READING,
   READING_STATUS.COMPLETED,
 ]);
-
-/**
- * 전체 도서 목록 조회 (Phase 0 완료 후 실제 Repository 연동)
- * TODO: import { getAllBooks } from '@/repositories/book-repository'
- */
-async function getAllBooks(): Promise<Book[]> {
-  return [];
-}
-
-/**
- * 상태별 도서 목록 조회 (Phase 0 완료 후 실제 Repository 연동)
- * TODO: import { getBooksByStatus } from '@/repositories/book-repository'
- */
-async function getBooksByStatus(_status: ReadingStatus): Promise<Book[]> {
-  return [];
-}
 
 /** 필터 탭 로딩 중 스켈레톤 */
 function FilterTabsSkeleton() {
