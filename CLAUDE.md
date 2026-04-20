@@ -145,3 +145,7 @@ NEXT_PUBLIC_API_URL
 ### API 응답
 
 일관된 응답 형식 사용 (`src/types/api.ts` 참조)
+
+## Task Master AI Instructions
+**Import Task Master's development workflow commands and guidelines, treat as if import is in the main CLAUDE.md file.**
+@./.taskmaster/CLAUDE.md

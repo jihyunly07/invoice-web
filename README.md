@@ -31,8 +31,9 @@ Notion 데이터베이스에서 책 정보를 조회하여 읽은 책, 읽고 �
 `.env.local` 파일을 생성하고 Notion API 키를 설정합니다:
 
 ```bash
-NOTION_API_KEY=your_secret_key
+NOTION_TOKEN=your_notion_integration_token
 NOTION_DATABASE_ID=your_database_id
+NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
 ### 2. 패키지 설치
