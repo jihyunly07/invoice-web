@@ -1,0 +1,300 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": "1",
+        "title": "Notion API 연동 환경 설정",
+        "description": "@notionhq/client 설치 확인, .env.local 환경 변수 설정, Notion Integration 생성 및 src/lib/notion.ts 클라이언트 초기화",
+        "status": "done",
+        "dependencies": [],
+        "priority": "high",
+        "details": "- @notionhq/client 패키지 설치 및 버전 확인\n- .env.local에 NOTION_API_KEY, NOTION_DATABASE_ID 설정\n- Notion 워크스페이스에서 Integration 생성 후 데이터베이스에 연결 권한 부여\n- src/lib/notion.ts에 Client 인스턴스 초기화 및 환경 변수 검증 로직 추가",
+        "testStrategy": "Notion 데이터베이스 쿼리 1회 이상 성공 확인",
+        "subtasks": [],
+        "updatedAt": "2026-04-20T07:40:03.704Z"
+      },
+      {
+        "id": "2",
+        "title": "Notion 데이터베이스 구축",
+        "description": "Notion 워크스페이스에 '독서 기록' 데이터베이스 생성 및 7개 속성 추가, 테스트 데이터 입력",
+        "status": "done",
+        "dependencies": [
+          "1"
+        ],
+        "priority": "high",
+        "details": "- 제목 (Title), 저자 (Rich Text), 독서 상태 (Select: wishlist/reading/completed), 평점 (Number: 0-5), 읽은 날짜 (Date), 한줄평 (Rich Text), 태그 (Multi-select) 속성 추가\n- 테스트 데이터 5개 이상 입력 (다양한 독서 상태, 평점, 태그 포함)\n- Integration 연결 확인",
+        "testStrategy": "API를 통해 테스트 데이터 조회 성공 확인",
+        "subtasks": [],
+        "updatedAt": "2026-04-20T07:40:48.806Z"
+      },
+      {
+        "id": "3",
+        "title": "타입 시스템 및 데이터 변환 레이어 구축",
+        "description": "Book 인터페이스, Notion 전용 타입, 데이터 변환 함수, Zod 스키마 정의",
+        "status": "done",
+        "dependencies": [
+          "2"
+        ],
+        "priority": "high",
+        "details": "- src/types/book.ts: Book 인터페이스, ReadingStatus 타입 정의 (이미 일부 구현됨)\n- src/types/notion.ts: NotionPage, NotionProperty 타입 정의\n- src/lib/notion/transformers.ts: transformNotionPageToBook(), extractRichText(), extractSelect(), extractMultiSelect(), extractNumber(), extractDate() 함수 구현\n- src/lib/validators/book.ts: bookSchema, readingStatusSchema Zod 스키마 정의\n- NotionAPIError 커스텀 에러 클래스 및 fallback 로직 추가",
+        "testStrategy": "TypeScript 타입 에러 0개, Zod 검증 통과 확인",
+        "subtasks": [],
+        "updatedAt": "2026-04-20T07:41:40.844Z"
+      },
+      {
+        "id": "4",
+        "title": "Repository 레이어 구현",
+        "description": "src/repositories/book.repository.ts 생성 및 CRUD 함수 구현",
+        "status": "done",
+        "dependencies": [
+          "3"
+        ],
+        "priority": "high",
+        "details": "- getAllBooks(): 전체 도서 조회 (최근 수정 순, 페이지네이션 100개)\n- getBookById(pageId): ID로 개별 도서 조회 (404 에러 핸들링)\n- getBooksByStatus(status): 독서 상태별 필터링\n- getBooksByTags(tags): 태그별 필터링\n- Rate limit 대응 에러 핸들링 및 네트워크 에러 재시도 (최대 3회)\n- Next.js 캐시 전략 적용 (revalidate 60초)",
+        "testStrategy": "모든 Repository 함수 정상 작동 및 에러 핸들링 완료 확인",
+        "subtasks": [],
+        "updatedAt": "2026-04-20T08:16:07.946Z"
+      },
+      {
+        "id": "5",
+        "title": "공통 컴포넌트 구축",
+        "description": "StatusBadge, RatingStars, TagList, BackButton, SkeletonCard 등 재사용 가능한 UI 컴포넌트 구현",
+        "status": "done",
+        "dependencies": [
+          "4"
+        ],
+        "priority": "high",
+        "details": "- src/components/books/status-badge.tsx: 독서 상태별 배지 (shadcn/ui Badge 활용)\n- src/components/books/rating-stars.tsx: 평점 별 표시 (0-5점, 0.5 단위, Lucide Star 아이콘)\n- src/components/books/tag-list.tsx: 태그 목록 표시\n- src/components/common/back-button.tsx: 뒤로가기 버튼 (router.back())\n- src/components/common/skeleton-card.tsx: 카드 스켈레톤 로딩 UI",
+        "testStrategy": "모든 컴포넌트 시각적 확인 완료",
+        "subtasks": [],
+        "updatedAt": "2026-04-20T08:58:10.460Z"
+      },
+      {
+        "id": "6",
+        "title": "홈 페이지 (목록) 구현",
+        "description": "도서 목록 페이지 구현 (BookCard, BookList, BookFilterTabs 컴포넌트 포함)",
+        "status": "done",
+        "dependencies": [
+          "5"
+        ],
+        "priority": "high",
+        "details": "- src/app/page.tsx: Server Component로 getAllBooks() 호출 및 에러 바운더리\n- src/components/books/book-card.tsx: 제목, 저자, 상태, 평점, 태그, 날짜 표시, 클릭 시 상세 이동, 호버 효과\n- src/components/books/book-list.tsx: 반응형 그리드 (모바일 1열, 태블릿 2열, 데스크톱 3열), 빈 상태 처리\n- src/components/books/book-filter-tabs.tsx: 전체/읽고싶음/읽는중/완독 필터 탭 (URL 쿼리 파라미터 동기화)\n- loading.tsx 및 error.tsx 구현",
+        "testStrategy": "모든 데이터 정상 표시, 필터링 및 반응형 레이아웃 작동 확인",
+        "subtasks": [],
+        "updatedAt": "2026-04-20T08:58:13.025Z"
+      },
+      {
+        "id": "7",
+        "title": "상세 페이지 구현",
+        "description": "도서 상세 페이지 구현 (Dynamic Route, BookDetail 컴포넌트)",
+        "status": "done",
+        "dependencies": [
+          "5"
+        ],
+        "priority": "high",
+        "details": "- src/app/books/[id]/page.tsx: Dynamic Route, getBookById() 호출, Server Component\n- src/components/books/book-detail.tsx: 제목/저자 헤딩, 상태 배지, 평점 별, 읽은 날짜, 태그, 한줄평, 메타 정보\n- 뒤로가기 버튼, 중앙 정렬 카드 (최대 너비 800px)\n- generateMetadata() 구현 (동적 메타 태그)\n- loading.tsx, error.tsx (404 처리) 구현",
+        "testStrategy": "개별 책 정보 모두 표시, 뒤로가기 및 SEO 최적화 완료 확인",
+        "subtasks": [],
+        "updatedAt": "2026-04-20T08:58:15.881Z"
+      },
+      {
+        "id": "8",
+        "title": "레이아웃 및 헤더 구현",
+        "description": "루트 레이아웃 최적화, Header/Footer 컴포넌트 구현, 다크모드 확인",
+        "status": "done",
+        "dependencies": [
+          "6",
+          "7"
+        ],
+        "priority": "medium",
+        "details": "- src/app/layout.tsx: 메타 태그, 폰트 최적화(next/font), ThemeProvider 설정\n- src/components/layout/header.tsx: 사이트 제목, 다크모드 토글, 모바일 반응형\n- src/components/layout/footer.tsx: 저작권 정보\n- 모든 컴포넌트 다크모드 정상 작동 확인",
+        "testStrategy": "헤더 및 다크모드가 모든 페이지에서 정상 작동 확인",
+        "subtasks": [],
+        "updatedAt": "2026-04-20T08:58:18.659Z"
+      },
+      {
+        "id": "9",
+        "title": "검색 기능 구현",
+        "description": "제목/저자 기반 검색 기능 구현 (Debounce, URL 쿼리 파라미터 동기화)",
+        "status": "done",
+        "dependencies": [
+          "8"
+        ],
+        "priority": "medium",
+        "details": "- src/components/books/search-bar.tsx: 검색 입력 필드, Debounce 300ms, 검색어 하이라이팅\n- 클라이언트 측 필터링 또는 Notion API 필터 쿼리 활용\n- 검색 결과 없음 Empty State UI\n- URL 쿼리 파라미터 동기화 (?search=검색어)",
+        "testStrategy": "제목 및 저자 검색 정상 작동, UX 자연스러움 확인",
+        "subtasks": [],
+        "updatedAt": "2026-04-20T08:58:27.394Z"
+      },
+      {
+        "id": "10",
+        "title": "태그별 필터링 및 정렬 기능",
+        "description": "다중 태그 필터, 정렬 옵션 UI 구현, URL 상태 동기화",
+        "status": "done",
+        "dependencies": [
+          "8"
+        ],
+        "priority": "medium",
+        "details": "- src/components/books/tag-filter.tsx: 전체 태그 목록, 다중 태그 선택, 선택된 태그 배지\n- 정렬 옵션: 최근 순, 평점 순, 제목 순, 읽은 날짜 순\n- URL 쿼리 파라미터 활용, 필터 초기화 버튼\n- 필터 결과 카운트 표시 ('전체 50권 중 12권 표시')",
+        "testStrategy": "태그 필터 및 정렬 모두 정상 작동, URL 상태 동기화 완료 확인",
+        "subtasks": [],
+        "updatedAt": "2026-04-20T08:58:29.892Z"
+      },
+      {
+        "id": "11",
+        "title": "성능 최적화 및 캐싱",
+        "description": "Next.js 캐시 전략, 이미지 최적화 준비, Lighthouse 90점 이상 달성",
+        "status": "pending",
+        "dependencies": [
+          "9",
+          "10"
+        ],
+        "priority": "medium",
+        "details": "- revalidate 옵션 설정 (60초), ISR 활용\n- next/image 컴포넌트 사용 준비\n- Lighthouse 점수 90점 이상 목표, Core Web Vitals 최적화\n- Notion API 병렬 처리 쿼리 최적화\n- Bundle 크기 최적화 및 Tree shaking 확인",
+        "testStrategy": "페이지 로드 시간 2초 이내, Lighthouse 점수 90점 이상 확인",
+        "subtasks": []
+      },
+      {
+        "id": "12",
+        "title": "에러 핸들링 및 접근성 개선",
+        "description": "전역 에러 바운더리 개선, Notion API 에러 처리 강화, 접근성 개선",
+        "status": "pending",
+        "dependencies": [
+          "11"
+        ],
+        "priority": "medium",
+        "details": "- 사용자 친화적 에러 메시지, Rate limit 에러 안내, 재시도 UI\n- ARIA 레이블 추가, 키보드 네비게이션, Progressive Loading\n- 데이터베이스 없음 → 설정 안내 페이지",
+        "testStrategy": "모든 에러 케이스에 대한 사용자 피드백 제공 완료",
+        "subtasks": []
+      },
+      {
+        "id": "13",
+        "title": "독서 통계 대시보드 구현",
+        "description": "통계 페이지 생성 (월별/연도별 독서량, 장르별 분포, 평균 평점 차트)",
+        "status": "pending",
+        "dependencies": [
+          "12"
+        ],
+        "priority": "low",
+        "details": "- src/app/stats/page.tsx 생성\n- 통계 계산: 총 독서량, 평균 평점, 장르별/상태별 분포, 월별 추이\n- ReadingStatsSummary, GenreDistributionChart, MonthlyReadingChart 컴포넌트\n- Recharts 또는 Chart.js 사용, 반응형 차트 레이아웃",
+        "testStrategy": "모든 통계 지표 정확 계산, 차트 정상 표시 확인",
+        "subtasks": []
+      },
+      {
+        "id": "14",
+        "title": "독서 목표 설정 및 진행률 표시",
+        "description": "연간/월간 독서 목표 설정 UI 및 진행률 Progress 컴포넌트 구현",
+        "status": "pending",
+        "dependencies": [
+          "12"
+        ],
+        "priority": "low",
+        "details": "- 연간/월간 목표 권수 설정 (LocalStorage 저장)\n- ReadingGoalProgress 컴포넌트: Progress 바, 달성률 %, 남은 권수\n- 홈 페이지에 목표 위젯 추가",
+        "testStrategy": "목표 설정 및 진행률 표시 정상 작동 확인",
+        "subtasks": []
+      },
+      {
+        "id": "15",
+        "title": "위시리스트 우선순위 관리",
+        "description": "우선순위 속성 추가, 위시리스트 전용 페이지 구현",
+        "status": "pending",
+        "dependencies": [
+          "12"
+        ],
+        "priority": "low",
+        "details": "- Notion 데이터베이스에 Priority (Select: 높음/중간/낮음) 속성 추가\n- src/app/wishlist/page.tsx: 읽고싶음 상태만 필터링, 우선순위별 정렬\n- 리스트 뷰 / 그리드 뷰 토글",
+        "testStrategy": "우선순위별 정렬 및 위시리스트 전용 페이지 완성 확인",
+        "subtasks": []
+      },
+      {
+        "id": "16",
+        "title": "UX 개선 및 마이크로 인터랙션",
+        "description": "페이지 전환 애니메이션, 키보드 단축키 지원, 공유 기능 UI 준비",
+        "status": "pending",
+        "dependencies": [
+          "13",
+          "14",
+          "15"
+        ],
+        "priority": "low",
+        "details": "- 페이지 전환/카드 호버/로딩 애니메이션\n- 키보드 단축키: 검색 포커스 (Cmd+K), 필터 전환\n- 공유 버튼 및 URL 복사 기능",
+        "testStrategy": "애니메이션 및 키보드 단축키 정상 작동, UX 자연스러움 확인",
+        "subtasks": []
+      },
+      {
+        "id": "17",
+        "title": "종합 테스트",
+        "description": "기능, 브라우저 호환성, 반응형, 성능, 접근성, 에러 시나리오 테스트",
+        "status": "pending",
+        "dependencies": [
+          "16"
+        ],
+        "priority": "medium",
+        "details": "- 모든 페이지 정상 작동, 필터/검색/정렬 기능 테스트\n- 브라우저 호환성: Chrome, Safari, Firefox, Edge, 모바일 브라우저\n- 반응형: 320px~, 768px~, 1024px~\n- Lighthouse 재측정, Core Web Vitals, 느린 네트워크 테스트\n- WAVE/axe DevTools 접근성 테스트\n- Notion API 연결 실패, 잘못된 DB ID, Rate limit 에러 시나리오",
+        "testStrategy": "모든 테스트 케이스 통과, 크리티컬 버그 0개",
+        "subtasks": []
+      },
+      {
+        "id": "18",
+        "title": "Playwright MCP 기반 API 통합테스트",
+        "description": "Playwright MCP 서버를 활용한 E2E 통합 테스트 (홈/상세/필터링/에러 시나리오/반응형)",
+        "status": "pending",
+        "dependencies": [
+          "17"
+        ],
+        "priority": "medium",
+        "details": "- 홈 페이지: browser_navigate, browser_snapshot, browser_network_requests로 API 응답 및 렌더링 검증\n- 필터링: browser_click으로 탭 전환, 필터 결과 확인\n- 상세 페이지: 카드 클릭 이동, 개별 API 호출, 뒤로가기\n- 에러 시나리오: 잘못된 ID 접속, 404 UI 확인\n- 반응형: browser_resize로 375/768/1280px 각 뷰포트 레이아웃 확인\n- browser_console_messages로 콘솔 에러/경고 0건 확인",
+        "testStrategy": "전체 API 엔드포인트 통합테스트 통과율 100%, 콘솔 에러 0건",
+        "subtasks": []
+      },
+      {
+        "id": "19",
+        "title": "문서화 및 README 작성",
+        "description": "README.md 업데이트, 설치/실행 가이드, 환경 변수 설명서, 배포 가이드 작성",
+        "status": "pending",
+        "dependencies": [
+          "18"
+        ],
+        "priority": "low",
+        "details": "- README.md: 프로젝트 소개, 주요 기능, 스크린샷, 기술 스택\n- Notion API 키 발급 및 데이터베이스 설정 방법\n- .env.example 파일 생성 및 환경 변수 용도 설명\n- Vercel 배포 가이드\n- MIT License 추가",
+        "testStrategy": "README를 보고 제3자가 프로젝트 설정 및 실행 가능 여부 확인",
+        "subtasks": []
+      },
+      {
+        "id": "20",
+        "title": "배포 및 모니터링 설정",
+        "description": "Vercel 배포, 환경 변수 설정, 프로덕션 빌드 테스트, SEO 최적화",
+        "status": "pending",
+        "dependencies": [
+          "19"
+        ],
+        "priority": "low",
+        "details": "- Vercel 프로젝트 생성, GitHub 연동, 자동 배포 설정\n- Vercel 대시보드 환경 변수 입력\n- npm run build 에러 확인 및 빌드 결과물 검증\n- robots.txt 및 sitemap.xml 생성\n- Vercel Analytics 활성화 (선택)",
+        "testStrategy": "프로덕션 URL에서 모든 기능 정상 작동 확인",
+        "subtasks": []
+      },
+      {
+        "id": "21",
+        "title": "출시 준비 및 피드백 수집",
+        "description": "릴리스 노트 작성, 출시 체크리스트 최종 확인, 피드백 수집 채널 설정",
+        "status": "pending",
+        "dependencies": [
+          "20"
+        ],
+        "priority": "low",
+        "details": "- GitHub Issues로 피드백 수집 채널 설정\n- 버전 1.0 릴리스 노트 작성 (주요 기능 요약, 알려진 이슈)\n- 출시 체크리스트: 환경 변수 설정, 프로덕션 빌드 성공, 성능 지표 목표 달성",
+        "testStrategy": "프로젝트 공개 준비 완료 및 릴리스 노트 작성 완료",
+        "subtasks": []
+      }
+    ],
+    "metadata": {
+      "version": "1.0.0",
+      "lastModified": "2026-04-20T08:58:29.892Z",
+      "taskCount": 21,
+      "completedCount": 10,
+      "tags": [
+        "master"
+      ]
+    }
+  }
+}

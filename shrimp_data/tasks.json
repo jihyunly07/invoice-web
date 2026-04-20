@@ -154,14 +154,14 @@
       "name": "홈 페이지 통합 구현",
       "description": "src/app/page.tsx를 Server Component로 구현하여 getAllBooks() Repository 함수 호출, BookFilterTabs + BookList 조합. searchParams 필터 처리. layout.tsx 메타태그 최적화.",
       "notes": "Next.js 15에서 searchParams는 Promise 타입. getAllBooks/getBooksByStatus는 Phase 0 완료 후 실제 연동. 그 전 빈 배열로 UI 완성.",
-      "status": "pending",
+      "status": "completed",
       "dependencies": [
         {
           "taskId": "01c99d2d-b34f-4aab-93b5-7b773f63f042"
         }
       ],
       "createdAt": "2026-02-24T07:23:44.116Z",
-      "updatedAt": "2026-02-24T07:23:44.116Z",
+      "updatedAt": "2026-02-24T13:15:24.830Z",
       "relatedFiles": [
         {
           "path": "src/app/page.tsx",
@@ -196,14 +196,16 @@
       ],
       "implementationGuide": "1. src/app/page.tsx 수정: Server Component. props { searchParams: Promise<{ status?: string }> } (Next.js 15 방식). searchParams await 후 status 추출. 유효한 ReadingStatus면 getBooksByStatus 호출, 아니면 getAllBooks 호출. Phase 0 완료 전 임시: books = [] 처리. Container, PageHeader 재사용. BookFilterTabs를 Suspense로 감싸기. BookList에 books 전달.\n2. src/app/layout.tsx: title과 description을 config.app.name, config.app.description으로 수정. 기존 구조 유지.\n3. src/app/loading.tsx 개선: SkeletonCard 3개를 그리드로 표시.",
       "verificationCriteria": "홈 페이지 정상 렌더링. status 쿼리파라미터로 필터 전환 가능. BookFilterTabs Suspense 래핑. layout.tsx 메타태그 반영. TypeScript 에러 없음.",
-      "analysisResult": "Phase 1 MVP 구현: Next.js 15 App Router + TypeScript strict + shadcn/ui + Tailwind CSS v4 기반. src/components/books/ 디렉토리 신규 생성. 기존 EmptyState, LoadingSpinner, PageHeader, Container, Badge, Skeleton, Tabs, Card 컴포넌트 최대 재활용. Phase 0(Notion Repository)에 의존하는 태스크는 명시적 의존성 표시."
+      "analysisResult": "Phase 1 MVP 구현: Next.js 15 App Router + TypeScript strict + shadcn/ui + Tailwind CSS v4 기반. src/components/books/ 디렉토리 신규 생성. 기존 EmptyState, LoadingSpinner, PageHeader, Container, Badge, Skeleton, Tabs, Card 컴포넌트 최대 재활용. Phase 0(Notion Repository)에 의존하는 태스크는 명시적 의존성 표시.",
+      "summary": "홈 페이지 통합 구현 완료. page.tsx: Server Component로 rewrite, Next.js 15 searchParams Promise 처리, VALID_STATUSES로 유효성 검증, getAllBooks/getBooksByStatus 임시 함수(빈 배열 반환), Container+PageHeader 재사용, BookFilterTabs Suspense 래핑(FilterTabsSkeleton 폴백), BookList에 books 전달. layout.tsx: config.app.name/description으로 메타태그 교체. loading.tsx: SkeletonCard 3개 그리드 + 헤더/탭 스켈레톤으로 개선. TypeScript 컴파일 에러 없음.",
+      "completedAt": "2026-02-24T13:15:24.825Z"
     },
     {
       "id": "1e2d96b2-21ba-4317-bd00-d159a3c1950b",
       "name": "도서 상세 페이지 구현",
       "description": "src/app/books/[id]/ 동적 라우트를 구현합니다. book-detail.tsx 컴포넌트, generateMetadata, 라우트 레벨 error.tsx/loading.tsx를 포함합니다.",
       "notes": "Next.js 15에서 params는 Promise 타입. notFound()는 next/navigation에서 import. Phase 0 getBookById 완료 전 stub 함수로 처리 가능.",
-      "status": "pending",
+      "status": "completed",
       "dependencies": [
         {
           "taskId": "a7a78e4d-18ed-46ca-92ab-d459e247439b"
@@ -213,7 +215,7 @@
         }
       ],
       "createdAt": "2026-02-24T07:23:44.116Z",
-      "updatedAt": "2026-02-24T07:23:44.116Z",
+      "updatedAt": "2026-02-24T13:47:12.897Z",
       "relatedFiles": [
         {
           "path": "src/components/books/book-detail.tsx",
@@ -253,7 +255,9 @@
       ],
       "implementationGuide": "1. src/components/books/book-detail.tsx: props는 book: Book. 제목(h1), 저자, StatusBadge, RatingStars, 읽은 날짜(formatDate), TagList, 한줄평(p), BackButton 포함. Container + max-w-2xl mx-auto. shadcn Card 래핑.\n2. src/app/books/[id]/page.tsx: Server Component. props { params: Promise<{ id: string }> } (Next.js 15). params await 후 id 추출. getBookById(id) 호출(Phase 0 의존, 임시 null 처리). null이면 notFound() 호출(next/navigation). generateMetadata로 책 제목 title 설정.\n3. src/app/books/[id]/loading.tsx: Skeleton으로 book-detail 형태 모방.\n4. src/app/books/[id]/error.tsx: 'use client'. 기존 src/app/error.tsx 패턴과 동일. BackButton 재사용.",
       "verificationCriteria": "동적 라우트 /books/[id] 정상 생성. notFound()로 404 처리. generateMetadata 책 제목 반영. loading.tsx, error.tsx 라우트 레벨 존재. TypeScript 에러 없음.",
-      "analysisResult": "Phase 1 MVP 구현: Next.js 15 App Router + TypeScript strict + shadcn/ui + Tailwind CSS v4 기반. src/components/books/ 디렉토리 신규 생성. 기존 EmptyState, LoadingSpinner, PageHeader, Container, Badge, Skeleton, Tabs, Card 컴포넌트 최대 재활용. Phase 0(Notion Repository)에 의존하는 태스크는 명시적 의존성 표시."
+      "analysisResult": "Phase 1 MVP 구현: Next.js 15 App Router + TypeScript strict + shadcn/ui + Tailwind CSS v4 기반. src/components/books/ 디렉토리 신규 생성. 기존 EmptyState, LoadingSpinner, PageHeader, Container, Badge, Skeleton, Tabs, Card 컴포넌트 최대 재활용. Phase 0(Notion Repository)에 의존하는 태스크는 명시적 의존성 표시.",
+      "summary": "도서 상세 페이지 구현 완료. book-detail.tsx: Container+max-w-2xl+Card 레이아웃, BackButton/StatusBadge/RatingStars/TagList/formatDate 모두 활용. books/[id]/page.tsx: Next.js 15 params Promise 처리, getBookById stub(null 반환), notFound() 404 처리, generateMetadata 책 제목 반영. books/[id]/loading.tsx: book-detail 구조 모방 스켈레톤. books/[id]/error.tsx: use client, BackButton+다시시도 버튼 조합. TypeScript 컴파일 에러 없음.",
+      "completedAt": "2026-02-24T13:47:12.895Z"
     }
   ]
 }
