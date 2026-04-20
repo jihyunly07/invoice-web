@@ -4,12 +4,12 @@
 
 export const config = {
   app: {
-    name: 'Claude Next.js Starter',
-    description: '모던 웹 스타터킷 - Next.js 15, React 19, TypeScript, Tailwind CSS v4',
+    name: '독서 기록',
+    description: 'Notion을 활용한 나만의 독서 기록 및 위시리스트',
     url: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
   },
-  api: {
-    baseUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api',
-    timeout: 10000, // 10초
+  notion: {
+    apiKey: process.env.NOTION_API_KEY || '',
+    databaseId: process.env.NOTION_DATABASE_ID || '',
   },
 } as const;

@@ -1,15 +1,16 @@
 'use client';
 
 /**
- * 글로벌 에러 페이지
- * 예상치 못한 에러 발생 시 표시
+ * 도서 상세 페이지 에러 상태
+ * 도서 조회 중 예외 발생 시 표시
  */
 
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { BackButton } from '@/components/common/back-button';
 
-export default function Error({
+export default function BookDetailError({
   error,
   reset,
 }: {
@@ -17,31 +18,31 @@ export default function Error({
   reset: () => void;
 }) {
   useEffect(() => {
-    // 에러 로깅 (추후 Sentry 등으로 교체 가능)
-    console.error('Error:', error);
+    console.error('BookDetailError:', error);
   }, [error]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-4">
+    <div className="flex min-h-[60vh] items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>문제가 발생했습니다</CardTitle>
+          <CardTitle>도서를 불러올 수 없습니다</CardTitle>
           <CardDescription>
-            죄송합니다. 예상치 못한 오류가 발생했습니다.
+            죄송합니다. 도서 정보를 가져오는 중 오류가 발생했습니다.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent>
           <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
             {error.message || '알 수 없는 오류가 발생했습니다.'}
           </div>
           {error.digest && (
-            <p className="text-sm text-muted-foreground">
+            <p className="mt-2 text-sm text-muted-foreground">
               오류 ID: {error.digest}
             </p>
           )}
         </CardContent>
         <CardFooter className="flex gap-2">
-          <Button onClick={reset} className="w-full">
+          <BackButton label="목록으로" />
+          <Button onClick={reset} className="flex-1">
             다시 시도
           </Button>
         </CardFooter>

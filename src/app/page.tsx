@@ -1,65 +1,79 @@
-import Image from "next/image";
+/**
+ * 홈 페이지 (독서 목록)
+ * Server Component - searchParams로 독서 상태 필터 처리
+ */
 
-export default function Home() {
+import { Suspense } from 'react';
+import { Container } from '@/components/layout/container';
+import { PageHeader } from '@/components/layout/page-header';
+import { BookFilterTabs } from '@/components/books/book-filter-tabs';
+import { BookList } from '@/components/books/book-list';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Book, ReadingStatus } from '@/types/book';
+import { READING_STATUS } from '@/lib/constants';
+
+/** 유효한 ReadingStatus 값 집합 */
+const VALID_STATUSES = new Set<string>([
+  READING_STATUS.WISHLIST,
+  READING_STATUS.READING,
+  READING_STATUS.COMPLETED,
+]);
+
+/**
+ * 전체 도서 목록 조회 (Phase 0 완료 후 실제 Repository 연동)
+ * TODO: import { getAllBooks } from '@/repositories/book-repository'
+ */
+async function getAllBooks(): Promise<Book[]> {
+  return [];
+}
+
+/**
+ * 상태별 도서 목록 조회 (Phase 0 완료 후 실제 Repository 연동)
+ * TODO: import { getBooksByStatus } from '@/repositories/book-repository'
+ */
+async function getBooksByStatus(_status: ReadingStatus): Promise<Book[]> {
+  return [];
+}
+
+/** 필터 탭 로딩 중 스켈레톤 */
+function FilterTabsSkeleton() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+    <div className="flex gap-2">
+      {Array.from({ length: 4 }, (_, i) => (
+        <Skeleton key={i} className="h-9 w-16 rounded-md" />
+      ))}
     </div>
+  );
+}
+
+interface HomeProps {
+  searchParams: Promise<{ status?: string }>;
+}
+
+export default async function Home({ searchParams }: HomeProps) {
+  /* Next.js 15: searchParams는 Promise */
+  const { status } = await searchParams;
+
+  /* 유효한 ReadingStatus인 경우 상태 필터 적용, 그 외 전체 조회 */
+  const books = status && VALID_STATUSES.has(status)
+    ? await getBooksByStatus(status as ReadingStatus)
+    : await getAllBooks();
+
+  return (
+    <Container className="py-8">
+      <div className="space-y-8">
+        <PageHeader
+          title="나의 독서 기록"
+          description="읽고 싶은 책과 읽은 책을 기록해보세요"
+        />
+
+        {/* BookFilterTabs는 useSearchParams 사용으로 Suspense 필수 */}
+        <Suspense fallback={<FilterTabsSkeleton />}>
+          <BookFilterTabs />
+        </Suspense>
+
+        <BookList books={books} />
+      </div>
+    </Container>
   );
 }

@@ -7,13 +7,7 @@
  */
 export const ROUTES = {
   HOME: '/',
-  LOGIN: '/login',
-  REGISTER: '/register',
-  DASHBOARD: '/dashboard',
-  USERS: '/users',
-  SETTINGS: '/settings',
-  ABOUT: '/about',
-  PRICING: '/pricing',
+  BOOKS: '/books',
 } as const;
 
 /**
@@ -28,40 +22,21 @@ export const BREAKPOINTS = {
 } as const;
 
 /**
- * 네비게이션 메뉴 (헤더용)
+ * 독서 상태 필터
  */
-export const NAVIGATION_MENU = [
-  {
-    label: '홈',
-    href: ROUTES.HOME,
-  },
-  {
-    label: '소개',
-    href: ROUTES.ABOUT,
-  },
-  {
-    label: '가격',
-    href: ROUTES.PRICING,
-  },
-] as const;
+export const READING_STATUS = {
+  ALL: 'all',
+  WISHLIST: 'wishlist',
+  READING: 'reading',
+  COMPLETED: 'completed',
+} as const;
 
 /**
- * 대시보드 네비게이션 메뉴 (사이드바용)
+ * 독서 상태 라벨
  */
-export const DASHBOARD_MENU = [
-  {
-    label: '대시보드',
-    href: ROUTES.DASHBOARD,
-    icon: 'LayoutDashboard',
-  },
-  {
-    label: '사용자',
-    href: ROUTES.USERS,
-    icon: 'Users',
-  },
-  {
-    label: '설정',
-    href: ROUTES.SETTINGS,
-    icon: 'Settings',
-  },
-] as const;
+export const READING_STATUS_LABEL = {
+  [READING_STATUS.ALL]: '전체',
+  [READING_STATUS.WISHLIST]: '읽고싶음',
+  [READING_STATUS.READING]: '읽는중',
+  [READING_STATUS.COMPLETED]: '완독',
+} as const;
