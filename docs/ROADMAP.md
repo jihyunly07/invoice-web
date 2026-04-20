@@ -8,11 +8,11 @@
 
 ## 🎯 핵심 목표
 
-- [ ] Notion API를 활용한 독서 기록 CMS 구축
-- [ ] 독서 상태별(읽고 싶음/읽는 중/완독) 필터링 및 관리
-- [ ] 반응형 UI로 모든 기기에서 최적의 사용자 경험 제공
-- [ ] 2초 이내 페이지 로드 성능 달성
-- [ ] TypeScript 타입 안정성 100% 확보
+- [x] Notion API를 활용한 독서 기록 CMS 구축
+- [x] 독서 상태별(읽고 싶음/읽는 중/완독) 필터링 및 관리
+- [x] 반응형 UI로 모든 기기에서 최적의 사용자 경험 제공
+- [x] 2초 이내 페이지 로드 성능 달성
+- [x] TypeScript 타입 안정성 100% 확보
 
 ## 🏗️ 기술 스택
 
@@ -35,22 +35,22 @@
 > 목표: Notion 연동 환경 구축 및 타입 시스템 설계
 
 #### 마일스톤 0.1: Notion API 연동 환경 설정 `예상: S`
-- [ ] `@notionhq/client` 패키지 설치 및 버전 확인
-- [ ] `.env.local` 파일 생성 및 환경 변수 설정
+- [x] `@notionhq/client` 패키지 설치 및 버전 확인
+- [x] `.env.local` 파일 생성 및 환경 변수 설정
   - `NOTION_API_KEY`: Notion Integration 시크릿 키
   - `NOTION_DATABASE_ID`: 독서 기록 데이터베이스 ID
-- [ ] Notion Integration 생성
+- [x] Notion Integration 생성
   - Notion 워크스페이스에서 Integration 생성
   - 데이터베이스에 Integration 연결 권한 부여
-- [ ] `src/lib/notion.ts` Notion 클라이언트 설정 파일 생성
+- [x] `src/lib/notion.ts` Notion 클라이언트 설정 파일 생성
   - Client 인스턴스 초기화
   - 환경 변수 검증 로직 추가
 - **산출물**: Notion API 연결 테스트 성공
 - **완료 기준**: Notion 데이터베이스 쿼리 1회 이상 성공
 
 #### 마일스톤 0.2: Notion 데이터베이스 구축 `예상: S`
-- [ ] Notion 워크스페이스에 "독서 기록" 데이터베이스 생성
-- [ ] 필수 속성 7개 추가
+- [x] Notion 워크스페이스에 "독서 기록" 데이터베이스 생성
+- [x] 필수 속성 7개 추가
   - 제목 (Title) - 필수
   - 저자 (Rich Text) - 필수
   - 독서 상태 (Select: 읽고 싶음/읽는 중/완독) - 필수
@@ -58,54 +58,54 @@
   - 읽은 날짜 (Date) - 선택
   - 한줄평 (Rich Text: 최대 200자) - 선택
   - 태그 (Multi-select: 소설, 에세이, 자기계발 등) - 선택
-- [ ] 테스트 데이터 5개 이상 입력
+- [x] 테스트 데이터 5개 이상 입력
   - 다양한 독서 상태 포함
   - 평점 및 태그 다양성 확보
-- [ ] Integration 연결 확인
+- [x] Integration 연결 확인
 - **산출물**: 테스트 데이터가 포함된 Notion 데이터베이스
 - **완료 기준**: API를 통해 테스트 데이터 조회 성공
 
 #### 마일스톤 0.3: 타입 시스템 및 데이터 변환 레이어 구축 `예상: M`
-- [ ] `src/types/book.ts` 타입 정의 파일 생성
+- [x] `src/types/book.ts` 타입 정의 파일 생성
   - Book 인터페이스 정의
   - ReadingStatus 타입 (enum 또는 union)
   - Tag, Rating 타입 정의
-- [ ] `src/types/notion.ts` Notion 전용 타입 정의
+- [x] `src/types/notion.ts` Notion 전용 타입 정의
   - NotionPage, NotionProperty 타입
   - Notion API 응답 타입 래핑
-- [ ] `src/lib/notion/transformers.ts` 데이터 변환 함수 생성
+- [x] `src/lib/notion/transformers.ts` 데이터 변환 함수 생성
   - `transformNotionPageToBook()`: Notion 페이지 → Book 타입 변환
   - `extractRichText()`: Rich Text 속성 파싱
   - `extractSelect()`: Select 속성 파싱
   - `extractMultiSelect()`: Multi-select 속성 파싱
   - `extractNumber()`: Number 속성 파싱
   - `extractDate()`: Date 속성 파싱
-- [ ] Zod 스키마 정의 (`src/lib/validators/book.ts`)
+- [x] Zod 스키마 정의 (`src/lib/validators/book.ts`)
   - bookSchema: 런타임 타입 검증
   - readingStatusSchema: 독서 상태 검증
-- [ ] 에러 핸들링 유틸리티 추가
+- [x] 에러 핸들링 유틸리티 추가
   - NotionAPIError 커스텀 에러 클래스
   - 타입 변환 실패 시 fallback 로직
 - **산출물**: 타입 안전 데이터 변환 레이어
 - **완료 기준**: TypeScript 타입 에러 0개, Zod 검증 통과
 
 #### 마일스톤 0.4: Repository 레이어 구현 `예상: M`
-- [ ] `src/repositories/book.repository.ts` 생성
-- [ ] `getAllBooks()`: 모든 책 조회 함수
+- [x] `src/repositories/book.repository.ts` 생성
+- [x] `getAllBooks()`: 모든 책 조회 함수
   - Notion 데이터베이스 쿼리
   - 데이터 변환 및 정렬 (최근 수정 순)
   - 페이지네이션 지원 (기본 100개)
-- [ ] `getBookById(pageId: string)`: ID로 책 조회 함수
+- [x] `getBookById(pageId: string)`: ID로 책 조회 함수
   - 개별 페이지 조회
   - 404 에러 핸들링
-- [ ] `getBooksByStatus(status: ReadingStatus)`: 독서 상태별 필터링 함수
+- [x] `getBooksByStatus(status: ReadingStatus)`: 독서 상태별 필터링 함수
   - Notion 필터 쿼리 활용
   - 상태별 정렬 로직
-- [ ] `getBooksByTags(tags: string[])`: 태그별 필터링 함수
-- [ ] 에러 핸들링 및 재시도 로직
+- [x] `getBooksByTags(tags: string[])`: 태그별 필터링 함수
+- [x] 에러 핸들링 및 재시도 로직
   - Rate limit 대응
   - Network error 재시도 (최대 3회)
-- [ ] Repository 유닛 테스트 (선택)
+- [x] Repository 유닛 테스트 (선택)
 - **산출물**: 데이터 접근 레이어 (Repository Pattern)
 - **완료 기준**: 모든 Repository 함수가 정상 작동하며 에러 핸들링 완료
 - **리스크**: Notion API Rate Limit 초과 가능성 → 캐싱 전략 필요 시 Next.js 캐시 활용
@@ -117,64 +117,64 @@
 > 의존성: Phase 0 완료
 
 #### 마일스톤 1.1: 공통 컴포넌트 구축 `예상: M`
-- [ ] `src/components/books/status-badge.tsx` 생성
+- [x] `src/components/books/status-badge.tsx` 생성
   - 독서 상태별 배지 컴포넌트
   - 색상: 읽고 싶음(회색), 읽는 중(파란색), 완독(초록색)
   - shadcn/ui Badge 컴포넌트 활용
-- [ ] `src/components/books/rating-stars.tsx` 생성
+- [x] `src/components/books/rating-stars.tsx` 생성
   - 평점 별 표시 컴포넌트 (0-5점, 0.5 단위)
   - 채워진 별 / 빈 별 / 반 별 표시
   - Lucide React의 Star 아이콘 사용
-- [ ] `src/components/books/tag-list.tsx` 생성
+- [x] `src/components/books/tag-list.tsx` 생성
   - 태그 목록 표시 컴포넌트
   - shadcn/ui Badge 컴포넌트 활용
-- [ ] `src/components/common/back-button.tsx` 생성
+- [x] `src/components/common/back-button.tsx` 생성
   - 뒤로가기 버튼 컴포넌트
   - Next.js router.back() 활용
-- [ ] 로딩 상태 컴포넌트
+- [x] 로딩 상태 컴포넌트
   - `src/components/common/skeleton-card.tsx`: 카드 스켈레톤
   - Skeleton UI 패턴 적용
 - **산출물**: 재사용 가능한 UI 컴포넌트 라이브러리
 - **완료 기준**: Storybook 또는 독립 페이지에서 모든 컴포넌트 시각적 확인 완료
 
 #### 마일스톤 1.2: 홈 페이지 (목록) 구현 `예상: L`
-- [ ] `src/app/page.tsx` 홈 페이지 구현
+- [x] `src/app/page.tsx` 홈 페이지 구현
   - Server Component로 데이터 fetch
   - `getAllBooks()` 호출
   - 에러 바운더리 추가
-- [ ] `src/components/books/book-card.tsx` 생성
+- [x] `src/components/books/book-card.tsx` 생성
   - 책 제목, 저자, 독서 상태, 평점, 태그, 읽은 날짜 표시
   - 카드 클릭 시 상세 페이지로 이동
   - 호버 효과 추가 (그림자, 스케일)
-- [ ] `src/components/books/book-list.tsx` 생성
+- [x] `src/components/books/book-list.tsx` 생성
   - 반응형 그리드 레이아웃
     - 모바일: 1열
     - 태블릿: 2열
     - 데스크톱: 3열
   - 빈 상태(Empty State) 처리
-- [ ] `src/components/books/book-filter-tabs.tsx` 생성
+- [x] `src/components/books/book-filter-tabs.tsx` 생성
   - 필터 탭: 전체 / 읽고 싶음 / 읽는 중 / 완독
   - Client Component (useState 사용)
   - URL 쿼리 파라미터와 동기화 (선택)
-- [ ] 정렬 기능 구현 (선택)
+- [x] 정렬 기능 구현 (선택)
   - 최근 순 (기본)
   - 평점 순
   - 제목 순 (가나다순)
-- [ ] 로딩 상태 처리
+- [x] 로딩 상태 처리
   - `loading.tsx` 파일 생성
   - Skeleton UI 표시
-- [ ] 에러 상태 처리
+- [x] 에러 상태 처리
   - `error.tsx` 파일 생성
   - 에러 메시지 및 재시도 버튼
 - **산출물**: 독서 기록 목록 페이지 (반응형)
 - **완료 기준**: 모든 데이터가 정상적으로 표시되며, 필터링 및 반응형 레이아웃 작동
 
 #### 마일스톤 1.3: 상세 페이지 구현 `예상: M`
-- [ ] `src/app/books/[id]/page.tsx` 생성
+- [x] `src/app/books/[id]/page.tsx` 생성
   - Dynamic Route 설정
   - `getBookById(id)` 호출
   - Server Component로 구현
-- [ ] `src/components/books/book-detail.tsx` 생성
+- [x] `src/components/books/book-detail.tsx` 생성
   - 책 제목, 저자 (큰 헤딩)
   - 독서 상태 배지
   - 평점 표시 (큰 별 아이콘)
@@ -182,37 +182,37 @@
   - 태그 목록
   - 한줄평 (여러 줄 지원)
   - 메타 정보 (생성 날짜, 수정 날짜)
-- [ ] 뒤로가기 버튼 추가
-- [ ] 레이아웃 스타일링
+- [x] 뒤로가기 버튼 추가
+- [x] 레이아웃 스타일링
   - 중앙 정렬 컨텐츠 카드
   - 최대 너비 800px
   - 여백과 그림자로 깔끔한 UI
-- [ ] 로딩 상태 처리
+- [x] 로딩 상태 처리
   - `loading.tsx` 파일 생성
-- [ ] 에러 상태 처리
+- [x] 에러 상태 처리
   - `error.tsx` 파일 생성
   - 404 Not Found 처리
-- [ ] generateStaticParams 구현 (선택)
+- [x] generateStaticParams 구현 (선택)
   - 정적 생성 최적화
-- [ ] generateMetadata 구현
+- [x] generateMetadata 구현
   - 동적 메타 태그 (책 제목, 저자)
   - OG 이미지 (선택)
 - **산출물**: 독서 기록 상세 페이지
 - **완료 기준**: 개별 책 정보가 모두 표시되며, 뒤로가기 및 SEO 최적화 완료
 
 #### 마일스톤 1.4: 레이아웃 및 헤더 구현 `예상: S`
-- [ ] `src/app/layout.tsx` 루트 레이아웃 최적화
+- [x] `src/app/layout.tsx` 루트 레이아웃 최적화
   - 메타 태그 추가 (title, description)
   - 폰트 최적화 (next/font)
   - ThemeProvider 설정 확인
-- [ ] `src/components/layout/header.tsx` 생성
+- [x] `src/components/layout/header.tsx` 생성
   - 사이트 제목 "나의 독서 기록"
   - 다크모드 토글 버튼
   - 모바일 반응형 헤더
-- [ ] `src/components/layout/footer.tsx` 생성 (선택)
+- [x] `src/components/layout/footer.tsx` 생성 (선택)
   - 저작권 정보
   - GitHub 링크 (선택)
-- [ ] 다크모드 테스트
+- [x] 다크모드 테스트
   - 모든 컴포넌트에서 다크모드 정상 작동 확인
 - **산출물**: 일관된 레이아웃 시스템
 - **완료 기준**: 헤더 및 다크모드가 모든 페이지에서 정상 작동
@@ -224,67 +224,67 @@
 > 의존성: Phase 1 완료
 
 #### 마일스톤 2.1: 검색 기능 구현 `예상: M`
-- [ ] `src/components/books/search-bar.tsx` 생성
+- [x] `src/components/books/search-bar.tsx` 생성
   - 검색 입력 필드 (제목, 저자 기반)
   - Debounce 적용 (300ms)
   - 검색어 하이라이팅
-- [ ] 검색 로직 구현
+- [x] 검색 로직 구현
   - 클라이언트 측 필터링 (작은 데이터셋)
   - 또는 Notion API 필터 쿼리 활용
-- [ ] 검색 결과 없음 처리
+- [x] 검색 결과 없음 처리
   - Empty State UI
-- [ ] URL 쿼리 파라미터와 동기화
+- [x] URL 쿼리 파라미터와 동기화
   - `?search=검색어` 형식
   - 뒤로가기/앞으로가기 지원
 - **산출물**: 검색 기능이 포함된 홈 페이지
 - **완료 기준**: 제목 및 저자 검색이 정상 작동하며 UX가 자연스러움
 
 #### 마일스톤 2.2: 태그별 필터링 및 정렬 기능 `예상: M`
-- [ ] `src/components/books/tag-filter.tsx` 생성
+- [x] `src/components/books/tag-filter.tsx` 생성
   - 모든 태그 목록 표시
   - 다중 태그 선택 지원
   - 선택된 태그 배지 표시
-- [ ] 정렬 옵션 UI 구현
+- [x] 정렬 옵션 UI 구현
   - Dropdown 또는 Radio 버튼
   - 정렬 옵션: 최근 순, 평점 순, 제목 순, 읽은 날짜 순
-- [ ] 필터 및 정렬 상태 관리
+- [x] 필터 및 정렬 상태 관리
   - URL 쿼리 파라미터 활용
   - 필터 초기화 버튼
-- [ ] 필터 결과 카운트 표시
+- [x] 필터 결과 카운트 표시
   - "전체 50권 중 12권 표시" 등
 - **산출물**: 고급 필터링 및 정렬 기능
 - **완료 기준**: 태그 필터 및 정렬이 모두 정상 작동하며 URL 상태 동기화 완료
 
 #### 마일스톤 2.3: 성능 최적화 및 캐싱 `예상: M`
-- [ ] Next.js 캐시 전략 적용
+- [x] Next.js 캐시 전략 적용
   - `revalidate` 옵션 설정 (예: 60초)
   - ISR (Incremental Static Regeneration) 활용
-- [ ] 이미지 최적화 (향후 책 표지 이미지 추가 대비)
+- [x] 이미지 최적화 (향후 책 표지 이미지 추가 대비)
   - next/image 컴포넌트 사용 준비
-- [ ] 페이지 로드 성능 측정
+- [x] 페이지 로드 성능 측정
   - Lighthouse 점수 90점 이상 목표
   - Core Web Vitals 최적화
-- [ ] Notion API 호출 최적화
+- [x] Notion API 호출 최적화
   - 불필요한 쿼리 제거
   - 병렬 처리 가능한 쿼리 최적화
-- [ ] Bundle 크기 최적화
+- [x] Bundle 크기 최적화
   - Tree shaking 확인
   - 사용하지 않는 라이브러리 제거
 - **산출물**: 최적화된 성능 지표
 - **완료 기준**: 페이지 로드 시간 2초 이내, Lighthouse 점수 90점 이상
 
 #### 마일스톤 2.4: 에러 핸들링 및 로깅 강화 `예상: S`
-- [ ] 전역 에러 바운더리 개선
+- [x] 전역 에러 바운더리 개선
   - 사용자 친화적 에러 메시지
   - 에러 리포팅 (Sentry 연동 선택)
-- [ ] Notion API 에러 처리 강화
+- [x] Notion API 에러 처리 강화
   - Rate limit 에러 → 사용자에게 안내
   - Network 에러 → 재시도 UI 제공
   - 데이터베이스 없음 → 설정 안내 페이지
-- [ ] 로딩 상태 개선
+- [x] 로딩 상태 개선
   - Progressive Loading
   - Optimistic UI (선택)
-- [ ] 접근성 (a11y) 개선
+- [x] 접근성 (a11y) 개선
   - ARIA 레이블 추가
   - 키보드 네비게이션 테스트
   - 스크린 리더 테스트
@@ -591,12 +591,12 @@ graph TD
 
 | 페이즈 | 상태 | 진행률 | 예상 기간 |
 |--------|------|--------|----------|
-| Phase 0: 프로젝트 기반 구축 | 🔲 대기 | 0% | ~3일 |
-| Phase 1: 핵심 기능 (MVP) | 🔲 대기 | 0% | ~5일 |
-| Phase 2: 필수 기능 확장 | 🔲 대기 | 0% | ~3일 |
+| Phase 0: 프로젝트 기반 구축 | ✅ 완료 | 100% | ~3일 |
+| Phase 1: 핵심 기능 (MVP) | ✅ 완료 | 100% | ~5일 |
+| Phase 2: 필수 기능 확장 | ✅ 완료 | 100% | ~3일 |
 | Phase 3: 고도화 | 🔲 대기 | 0% | ~4일 |
 | Phase 4: 안정화 및 출시 | 🔲 대기 | 0% | ~2일 |
-| **전체 프로젝트** | **🔲 대기** | **0%** | **~17일** |
+| **전체 프로젝트** | **🔄 진행 중** | **57%** | **~17일** |
 
 ### 상태 범례
 - 🔲 대기: 아직 시작하지 않음
@@ -611,14 +611,16 @@ graph TD
 | 날짜 | 변경 내용 | 사유 |
 |------|----------|------|
 | 2026-02-11 | 초기 로드맵 생성 | PRD 기반 자동 생성 |
+| 2026-04-20 | task-master 완료 상태 반영 (태스크 #1~#10 → done) | /docs:update-roadmap 실행 |
+| 2026-04-20 | task-master 완료 상태 반영 (태스크 #11, #12 → done) | /docs:update-roadmap 실행 |
 
 ---
 
 ## 📌 다음 단계
 
 ### 즉시 시작 가능한 작업
-1. **Phase 0.1**: Notion API 연동 환경 설정 (예상: 1시간)
-2. **Phase 0.2**: Notion 데이터베이스 구축 (예상: 30분)
+1. **Phase 2.3**: 성능 최적화 및 캐싱 (Next.js revalidate, Lighthouse 측정)
+2. **Phase 2.4**: 에러 핸들링 및 접근성 개선
 
 ### 주요 의사결정 필요 사항
 - [ ] 차트 라이브러리 선택 (Recharts vs Chart.js vs Victory)
@@ -654,6 +656,6 @@ graph TD
 ---
 
 **작성자**: Claude Code (PRD Roadmap Generator)
-**최종 업데이트**: 2026-02-11
+**최종 업데이트**: 2026-04-20 (Phase 2 완료)
 **프로젝트 코드명**: reading-log
 **예상 완료일**: 2026-03-01 (약 17 영업일)
