@@ -40,7 +40,7 @@ export function BookDetail({ book }: BookDetailProps) {
           <CardContent className="space-y-6">
             {/* 평점 */}
             <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">평점</p>
+              <p className="text-sm font-medium text-muted-foreground" id="rating-label">평점</p>
               <RatingStars rating={book.rating} sizeClass="h-5 w-5" />
             </div>
 
@@ -49,8 +49,10 @@ export function BookDetail({ book }: BookDetailProps) {
               <div className="space-y-1">
                 <p className="text-sm font-medium text-muted-foreground">읽은 날짜</p>
                 <div className="flex items-center gap-2 text-sm">
-                  <CalendarDays className="h-4 w-4 text-muted-foreground" />
-                  <span>{formatDate(book.readDate, 'yyyy년 MM월 dd일')}</span>
+                  <CalendarDays className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                  <time dateTime={book.readDate}>
+                    {formatDate(book.readDate, 'yyyy년 MM월 dd일')}
+                  </time>
                 </div>
               </div>
             )}
@@ -66,10 +68,13 @@ export function BookDetail({ book }: BookDetailProps) {
             {/* 한줄평 */}
             {book.review && (
               <div className="space-y-1">
-                <p className="text-sm font-medium text-muted-foreground">한줄평</p>
-                <p className="rounded-lg bg-muted px-4 py-3 text-sm leading-relaxed">
+                <p className="text-sm font-medium text-muted-foreground" id="review-label">한줄평</p>
+                <blockquote
+                  className="rounded-lg bg-muted px-4 py-3 text-sm leading-relaxed"
+                  aria-labelledby="review-label"
+                >
                   {book.review}
-                </p>
+                </blockquote>
               </div>
             )}
           </CardContent>

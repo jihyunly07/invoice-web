@@ -26,10 +26,15 @@ export function BookList({ books }: BookListProps) {
 
   return (
     /* 반응형 그리드: 모바일 1열 → 태블릿 2열 → 데스크톱 3열 */
-    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <ul
+      className="grid list-none grid-cols-1 gap-6 p-0 sm:grid-cols-2 lg:grid-cols-3"
+      aria-label={`도서 목록 (${books.length}권)`}
+    >
       {books.map((book) => (
-        <BookCard key={book.id} book={book} />
+        <li key={book.id} className="h-full">
+          <BookCard book={book} className="h-full" />
+        </li>
       ))}
-    </div>
+    </ul>
   );
 }

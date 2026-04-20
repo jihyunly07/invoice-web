@@ -25,14 +25,21 @@ export function RatingStars({
   /* 평점 미기록 시 텍스트로 표시 */
   if (rating === null) {
     return (
-      <span className={cn('text-sm text-muted-foreground', className)}>
+      <span
+        className={cn('text-sm text-muted-foreground', className)}
+        aria-label="평점 없음"
+      >
         평점 없음
       </span>
     );
   }
 
   return (
-    <div className={cn('flex items-center gap-0.5', className)}>
+    <div
+      className={cn('flex items-center gap-0.5', className)}
+      role="img"
+      aria-label={`평점 ${rating}점 (5점 만점)`}
+    >
       {Array.from({ length: max }, (_, index) => (
         <Star
           key={index}
@@ -42,9 +49,10 @@ export function RatingStars({
               ? 'fill-yellow-400 text-yellow-400'  // 채워진 별
               : 'text-muted-foreground'              // 빈 별
           )}
+          aria-hidden="true"
         />
       ))}
-      <span className="ml-1 text-sm text-muted-foreground">
+      <span className="ml-1 text-sm text-muted-foreground" aria-hidden="true">
         {rating}/{max}
       </span>
     </div>

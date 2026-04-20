@@ -19,7 +19,11 @@ interface BookCardProps {
 
 export function BookCard({ book, className }: BookCardProps) {
   return (
-    <Link href={`/books/${book.id}`} className="block">
+    <Link
+      href={`/books/${book.id}`}
+      className="block h-full"
+      aria-label={`${book.title} - ${book.author} 상세 보기`}
+    >
       <Card
         className={cn(
           'h-full cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-md',
