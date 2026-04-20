@@ -144,7 +144,7 @@
         "id": "11",
         "title": "성능 최적화 및 캐싱",
         "description": "Next.js 캐시 전략, 이미지 최적화 준비, Lighthouse 90점 이상 달성",
-        "status": "pending",
+        "status": "done",
         "dependencies": [
           "9",
           "10"
@@ -152,20 +152,22 @@
         "priority": "medium",
         "details": "- revalidate 옵션 설정 (60초), ISR 활용\n- next/image 컴포넌트 사용 준비\n- Lighthouse 점수 90점 이상 목표, Core Web Vitals 최적화\n- Notion API 병렬 처리 쿼리 최적화\n- Bundle 크기 최적화 및 Tree shaking 확인",
         "testStrategy": "페이지 로드 시간 2초 이내, Lighthouse 점수 90점 이상 확인",
-        "subtasks": []
+        "subtasks": [],
+        "updatedAt": "2026-04-20T14:50:24.428Z"
       },
       {
         "id": "12",
         "title": "에러 핸들링 및 접근성 개선",
         "description": "전역 에러 바운더리 개선, Notion API 에러 처리 강화, 접근성 개선",
-        "status": "pending",
+        "status": "done",
         "dependencies": [
           "11"
         ],
         "priority": "medium",
         "details": "- 사용자 친화적 에러 메시지, Rate limit 에러 안내, 재시도 UI\n- ARIA 레이블 추가, 키보드 네비게이션, Progressive Loading\n- 데이터베이스 없음 → 설정 안내 페이지",
         "testStrategy": "모든 에러 케이스에 대한 사용자 피드백 제공 완료",
-        "subtasks": []
+        "subtasks": [],
+        "updatedAt": "2026-04-20T14:50:26.826Z"
       },
       {
         "id": "13",
@@ -289,9 +291,9 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2026-04-20T08:58:29.892Z",
+      "lastModified": "2026-04-20T14:50:26.826Z",
       "taskCount": 21,
-      "completedCount": 10,
+      "completedCount": 12,
       "tags": [
         "master"
       ]
